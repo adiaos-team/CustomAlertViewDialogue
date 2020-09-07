@@ -1,17 +1,31 @@
 buildscript {
     repositories {
-        jcenter()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
         maven { url "https://maven.google.com" }
+        maven { url 'https://jitpack.io' }
+        mavenCentral()
         google()
+        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
 allprojects {
     repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
+        maven { url "https://maven.google.com" }
+        maven { url 'https://jitpack.io' }
+        //   maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+        mavenCentral()
+        google()
         jcenter()
     }
+}
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

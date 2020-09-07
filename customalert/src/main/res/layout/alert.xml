@@ -41,7 +41,6 @@
             android:text="Sample Dialogue Message"
             android:textSize="@dimen/text_message_size"
             android:textColor="@color/text_default"
-            android:maxLines="4"
             android:minLines="1"
             android:scrollbars="vertical"/>
 

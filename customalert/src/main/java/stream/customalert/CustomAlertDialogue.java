@@ -51,7 +51,7 @@ public class CustomAlertDialogue extends DialogFragment {
     private TextView positiveText;
     private ArrayList<String> tagList;
     private static CustomAlertDialogue instance = new CustomAlertDialogue();
-
+    private boolean isAdd=false;
     public static CustomAlertDialogue getInstance() {
         return instance;
     }
@@ -534,9 +534,18 @@ public class CustomAlertDialogue extends DialogFragment {
 
     private Dialog show(Activity activity, Builder builder) {
         this.builder = builder;
-        if (!isAdded())
+      /*  if (!isAdded())
+            show(((AppCompatActivity) activity).getSupportFragmentManager(), TAG);*/
+        if(!isAdd){
             show(((AppCompatActivity) activity).getSupportFragmentManager(), TAG);
+            isAdd=true;
+        }
         return getDialog();
+    }
+    @Override
+    public void dismiss() {
+        isAdd=false;
+        super.dismiss();
     }
 
     public static class Builder implements Parcelable {
