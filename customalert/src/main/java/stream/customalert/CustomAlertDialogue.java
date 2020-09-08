@@ -41,6 +41,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.FragmentManager;
 import stream.customalert.ui.CustomBlurDialogue;
 
 public class CustomAlertDialogue extends DialogFragment {
@@ -51,7 +52,6 @@ public class CustomAlertDialogue extends DialogFragment {
     private TextView positiveText;
     private ArrayList<String> tagList;
     private static CustomAlertDialogue instance = new CustomAlertDialogue();
-    private boolean isAdd=false;
     public static CustomAlertDialogue getInstance() {
         return instance;
     }
@@ -536,18 +536,22 @@ public class CustomAlertDialogue extends DialogFragment {
         this.builder = builder;
       /*  if (!isAdded())
             show(((AppCompatActivity) activity).getSupportFragmentManager(), TAG);*/
-        if(!isAdd){
+        if(!isAdded()){
             show(((AppCompatActivity) activity).getSupportFragmentManager(), TAG);
-            isAdd=true;
         }
         return getDialog();
     }
     @Override
-    public void dismiss() {
-        isAdd=false;
-        super.dismiss();
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
+        try {
+            //在每个add事务前增加一个remove事务，防止连续的add
+            manager.beginTransaction().remove(this).commit();
+            super.show(manager, tag);
+        } catch (Exception e) {
+            //同一实例使用不同的tag会异常,这里捕获一下
+            e.printStackTrace();
+        }
     }
-
     public static class Builder implements Parcelable {
 
         private String title;
