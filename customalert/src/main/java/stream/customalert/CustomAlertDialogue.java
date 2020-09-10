@@ -2,7 +2,6 @@ package stream.customalert;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -23,8 +22,6 @@ import android.view.ViewStub;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -40,7 +37,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import stream.customalert.ui.CustomBlurDialogue;
 
@@ -364,18 +360,33 @@ public class CustomAlertDialogue extends DialogFragment {
     }
 
     private void initListView(View view) {
-        ArrayList<ItemInfo> mData = new ArrayList<ItemInfo>();
+        ArrayList<DialogItemInfo> mData = new ArrayList<DialogItemInfo>();
         if (builder.getData() != null)
         {
             mData.addAll(builder.getData());
-        }
         ListView alertButtonListView = view.findViewById(R.id.listview);
-        DialogListAdapter adapter = new DialogListAdapter(mData,CustomAlertDialogue.this);
+        DialogItemListAdapter adapter = new DialogItemListAdapter(mData,CustomAlertDialogue.this);
         if (builder.getOnItemClickListener() != null)
         {
             adapter.setOnItemClickListener(builder.getOnItemClickListener());
         }
         alertButtonListView.setAdapter(adapter);
+
+        }else {
+
+            ArrayList<String> strings = new ArrayList<String>();
+            if (builder.getStringItems() != null&&builder.getStringItems().size()>0) {
+                strings.addAll(builder.getStringItems());
+                ListView alertButtonListView = view.findViewById(R.id.listview);
+                StringListAdapter adapter = new StringListAdapter(strings, CustomAlertDialogue.this);
+                if (builder.getOnItemClickListener() != null) {
+                    adapter.setOnItemClickListener(builder.getOnItemClickListener());
+                }
+                alertButtonListView.setAdapter(adapter);
+
+            }
+
+        }
     }
 
     private void initInputView(final View view) {
@@ -558,12 +569,13 @@ public class CustomAlertDialogue extends DialogFragment {
         private OnCancelClicked onCancelClicked;
         private OnInputClicked onInputClicked;
 
-        private ArrayList<ItemInfo> data;
+        private ArrayList<DialogItemInfo> data;
+        private ArrayList<String> stringItems;
         private ArrayList<String> lineInputHint;
         private ArrayList<String> lineInputText;
         private ArrayList<String> boxInputHint;
         private ArrayList<String> boxInputText;
-        private DialogListAdapter.OnItemClickListener onItemClickListener;
+        private OnItemClickListener onItemClickListener;
 
         private boolean autoHide;
         private boolean cancelable = true;
@@ -586,7 +598,8 @@ public class CustomAlertDialogue extends DialogFragment {
             cancelColor = in.readInt();
             backgroundColor = in.readInt();
             timeToHide = in.readInt();
-            data = in.createTypedArrayList(ItemInfo.CREATOR);
+            data = in.createTypedArrayList(DialogItemInfo.CREATOR);
+            stringItems = in.createStringArrayList();
             lineInputHint = in.createStringArrayList();
             lineInputText = in.createStringArrayList();
             boxInputHint = in.createStringArrayList();
@@ -837,11 +850,11 @@ public class CustomAlertDialogue extends DialogFragment {
          * @param onItemClickListener - pass a listener to be called when a selection item is clicked.
          * @return
          */
-        public Builder setOnItemClickListener(DialogListAdapter.OnItemClickListener onItemClickListener) {
+        public Builder setOnItemClickListener(OnItemClickListener onItemClickListener) {
             this.onItemClickListener = onItemClickListener;
             return this;
         }
-        public DialogListAdapter.OnItemClickListener getOnItemClickListener() { return onItemClickListener; }
+        public OnItemClickListener getOnItemClickListener() { return onItemClickListener; }
 
         /**
          * @param onInputClicked - pass a listener to be called when an input box is submitted.
@@ -859,11 +872,20 @@ public class CustomAlertDialogue extends DialogFragment {
          * @param data - converts a String ArrayList into destructive options in the selector.
          * @return
          */
-        public Builder setData(ArrayList<ItemInfo> data) {
+        public Builder setData(ArrayList<DialogItemInfo> data) {
             this.data = data;
             return this;
         }
-        public ArrayList<ItemInfo> getData() { return data; }
+        public ArrayList<DialogItemInfo> getData() { return data; }
+        /**
+         * @param stringItems - converts a String ArrayList into destructive options in the selector.
+         * @return
+         */
+        public Builder setStringItems(ArrayList<String> stringItems) {
+            this.stringItems = stringItems;
+            return this;
+        }
+        public ArrayList<String> getStringItems() { return stringItems; }
 
         /**
          * @param lineInputText - converts a String ArrayList into single line text input boxes.
@@ -1035,6 +1057,7 @@ public class CustomAlertDialogue extends DialogFragment {
             parcel.writeInt(backgroundColor);
             parcel.writeInt(timeToHide);
             parcel.writeTypedList(data);
+            parcel.writeStringList(stringItems);
             parcel.writeStringList(lineInputHint);
             parcel.writeStringList(lineInputText);
             parcel.writeStringList(boxInputHint);

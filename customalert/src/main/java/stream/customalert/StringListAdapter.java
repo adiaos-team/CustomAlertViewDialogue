@@ -1,7 +1,6 @@
 package stream.customalert;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +11,14 @@ import java.util.List;
 
 import androidx.core.content.ContextCompat;
 
-public class DialogListAdapter extends BaseAdapter {
+public class StringListAdapter extends BaseAdapter {
 //    public class CustomActionsheetAdapter extends BaseAdapter {
 
-    private List<ItemInfo> mDatas;
+    private List<String> mDatas;
     private CustomAlertDialogue dialog;
     private OnItemClickListener itemClickListener;
 
-    public DialogListAdapter(List<ItemInfo> datas, CustomAlertDialogue dialogue) {
+    public StringListAdapter(List<String> datas, CustomAlertDialogue dialogue) {
         this.mDatas = datas;
         this.dialog = dialogue;
     }
@@ -44,8 +43,7 @@ public class DialogListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final ItemInfo itemInfo = mDatas.get(position);
-        String data = itemInfo.getName();
+        final String data = mDatas.get(position);
         Holder holder = null;
         View view = convertView;
         if (view == null) {
@@ -61,7 +59,7 @@ public class DialogListAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 if (itemClickListener!=null){
-                    itemClickListener.onItemClick(dialog,itemInfo);
+                    itemClickListener.onItemClick(dialog, null,data);
                 }
             }
         });
@@ -95,7 +93,4 @@ public class DialogListAdapter extends BaseAdapter {
     }
 
 
-    public interface OnItemClickListener {
-        void onItemClick(CustomAlertDialogue dialog,ItemInfo itemInfo);
-    }
 }

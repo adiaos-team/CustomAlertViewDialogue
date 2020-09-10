@@ -3,9 +3,9 @@ package stream.customalert;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ItemInfo implements Parcelable {
-    public ItemInfo(){}
-    public ItemInfo( String name,String value){
+public class DialogItemInfo implements Parcelable {
+    public DialogItemInfo(){}
+    public DialogItemInfo(String name, String value){
         this.name = name;
         this.value = value;
     }
@@ -39,20 +39,20 @@ public class ItemInfo implements Parcelable {
         dest.writeString(name);
         dest.writeString(value);
     }
-    ItemInfo(Parcel in){
+    DialogItemInfo(Parcel in){
         name=in.readString();
         value=in.readString();
     }
 
-    public static final Creator<ItemInfo> CREATOR = new Creator<ItemInfo>() {
+    public static final Creator<DialogItemInfo> CREATOR = new Creator<DialogItemInfo>() {
         @Override
-        public ItemInfo createFromParcel(Parcel in) {
-            return new ItemInfo(in);
+        public DialogItemInfo createFromParcel(Parcel in) {
+            return new DialogItemInfo(in);
         }
 
         @Override
-        public ItemInfo[] newArray(int size) {
-            return new ItemInfo[size];
+        public DialogItemInfo[] newArray(int size) {
+            return new DialogItemInfo[size];
         }
     };
 }
