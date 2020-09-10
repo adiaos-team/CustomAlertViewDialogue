@@ -20,6 +20,8 @@ import androidx.cardview.widget.CardView;
 import java.util.ArrayList;
 
 import stream.customalert.CustomAlertDialogue;
+import stream.customalert.DialogListAdapter;
+import stream.customalert.ItemInfo;
 import stream.custombutton.CustomButton;
 
 public class MainActivity extends AppCompatActivity{
@@ -108,40 +110,35 @@ public class MainActivity extends AppCompatActivity{
         btn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayList<String> destructive = new ArrayList<>();
-                destructive.add("Choice 1");
-
-                ArrayList<String> other = new ArrayList<>();
-                other.add("Choice 2");
-                other.add("Choice 3");
-                other.add("Choice 4");
-                other.add("Choice 5");
-                other.add("Choice 6");
-                other.add("Choice 7");
-                other.add("Choice 8");
-                other.add("Choice 9");
-                other.add("Choice 10");
-                other.add("Choice 11");
-                other.add("Choice 12");
-                other.add("Choice 13");
-                other.add("Choice 14");
-                other.add("Choice 15");
-                other.add("Choice 16");
-                other.add("Choice 17");
-                other.add("Choice 18");
-                other.add("Choice 19");
-                other.add("Choice 20");
+                ArrayList<ItemInfo> list1 = new ArrayList<>();
+                list1.add(new ItemInfo("Choice 2","2"));
+                list1.add(new ItemInfo("Choice 3","3"));
+                list1.add(new ItemInfo("Choice 4","4"));
+                list1.add(new ItemInfo("Choice 5","5"));
+                list1.add(new ItemInfo("Choice 6","6"));
+                list1.add(new ItemInfo("Choice 7","7"));
+                list1.add(new ItemInfo("Choice 8","8"));
+                list1.add(new ItemInfo("Choice 9","9"));
+                list1.add(new ItemInfo("Choice 10","10"));
+                list1.add(new ItemInfo("Choice 11","11"));
+                list1.add(new ItemInfo("Choice 12","12"));
+                ArrayList<ItemInfo> list2 = new ArrayList<>();
+                list2.add(new ItemInfo("Choice 13","13"));
+                list2.add(new ItemInfo("Choice 14","14"));
+                list2.add(new ItemInfo("Choice 15","15"));
+                list2.add(new ItemInfo("Choice 16","16"));
 
                 CustomAlertDialogue.Builder alert = new CustomAlertDialogue.Builder(MainActivity.this)
                         .setStyle(CustomAlertDialogue.Style.SELECTOR)
-                        .setDestructive(destructive)
-                        .setOthers(other)
-                        .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        .setData(list1)
+                        .setOnItemClickListener(new DialogListAdapter.OnItemClickListener() {
                             @Override
-                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                CustomAlertDialogue.getInstance().dismiss();
-                                Toast.makeText(mContext, "Selected " + i, Toast.LENGTH_SHORT).show();
+                            public void onItemClick(CustomAlertDialogue dialog, ItemInfo itemInfo) {
+                                Toast.makeText(mContext, "Selected " + itemInfo.getValue(), Toast.LENGTH_SHORT).show();
+
+                                dialog.dismiss();
                             }
+
                         })
                         .setDecorView(getWindow().getDecorView())
                         .build();
@@ -180,25 +177,30 @@ public class MainActivity extends AppCompatActivity{
                                 handler.postDelayed(r, 50);
                             }
                         })
-                        .setOthers(other)
-                        .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                        .setData(other)
+                        .setOnItemClickListener(new DialogListAdapter.OnItemClickListener() {
                             @Override
-                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                String selection = adapterView.getItemAtPosition(i).toString();
-                                Vibrator vibe = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-                                vibe.vibrate(10);
-                                switch (selection)
-                                {
-                                    case "Copy":
-                                        CustomAlertDialogue.getInstance().dismiss();
-                                        Toast.makeText(mContext, "Copied", Toast.LENGTH_SHORT).show();
-                                        break;
-                                    case "Forward":
-                                        CustomAlertDialogue.getInstance().dismiss();
-                                        Toast.makeText(mContext, "Forwarded", Toast.LENGTH_SHORT).show();
-                                        break;
-                                }
+                            public void onItemClick(CustomAlertDialogue dialog, ItemInfo itemInfo) {
+
                             }
+
+//                            @Override
+//                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                                String selection = adapterView.getItemAtPosition(i).toString();
+//                                Vibrator vibe = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+//                                vibe.vibrate(10);
+//                                switch (selection)
+//                                {
+//                                    case "Copy":
+////                                        CustomAlertDialogue.getInstance().dismiss();
+//                                        Toast.makeText(mContext, "Copied", Toast.LENGTH_SHORT).show();
+//                                        break;
+//                                    case "Forward":
+////                                        CustomAlertDialogue.getInstance().dismiss();
+//                                        Toast.makeText(mContext, "Forwarded", Toast.LENGTH_SHORT).show();
+//                                        break;
+//                                }
+//                            }
                         })
                         .setDecorView(getWindow().getDecorView())
                         .build();
@@ -272,27 +274,27 @@ public class MainActivity extends AppCompatActivity{
     {
         ArrayList<String> destructive = new ArrayList<>();
         destructive.add("Delete");
-        ArrayList<String> other = new ArrayList<>();
-        other.add("Details");
+        ArrayList<ItemInfo> other = new ArrayList<>();
+        other.add(new ItemInfo("Details","1Details"));
 
         CustomAlertDialogue.Builder alert = new CustomAlertDialogue.Builder(MainActivity.this)
                 .setStyle(CustomAlertDialogue.Style.SELECTOR)
-                .setDestructive(destructive)
-                .setOthers(other)
-                .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                .setDestructive(destructive)
+                .setData(other)
+                .setOnItemClickListener(new DialogListAdapter.OnItemClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        String selection = adapterView.getItemAtPosition(i).toString();
+                    public void onItemClick(CustomAlertDialogue dialog, ItemInfo itemInfo) {
+                        String selection = itemInfo.getName().toString();
                         Vibrator vibe = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
                         vibe.vibrate(10);
                         switch (selection)
                         {
                             case "Delete":
-                                CustomAlertDialogue.getInstance().dismiss();
+                                dialog.dismiss();
                                 Toast.makeText(mContext, "Deleted", Toast.LENGTH_SHORT).show();
                                 break;
                             case "Details":
-                                CustomAlertDialogue.getInstance().dismiss();
+                                dialog.dismiss();
                                 Toast.makeText(mContext, "Details", Toast.LENGTH_SHORT).show();
                                 break;
                         }

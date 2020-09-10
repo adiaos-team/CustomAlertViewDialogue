@@ -2,6 +2,7 @@ package stream.customalert;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -50,11 +51,6 @@ public class CustomAlertDialogue extends DialogFragment {
     private ArrayList<String> inputList;
     private TextView positiveText;
     private ArrayList<String> tagList;
-    private static CustomAlertDialogue instance = new CustomAlertDialogue();
-
-    public static CustomAlertDialogue getInstance() {
-        return instance;
-    }
 
     private View layout;
     private TextView title, message;
@@ -336,7 +332,7 @@ public class CustomAlertDialogue extends DialogFragment {
 
         if (builder.getTitle() != null || builder.getMessage() != null)
         {
-            if (builder.getDestructive() != null || builder.getOthers() != null)
+            if (builder.getData() != null&&builder.getData().size()>0)
             {
                 //Add a divider between header and listview
                 View header = view.findViewById(R.id.header_divider);
@@ -368,22 +364,18 @@ public class CustomAlertDialogue extends DialogFragment {
     }
 
     private void initListView(View view) {
-        ArrayList<String> mData = new ArrayList<String>();
-        if (builder.getDestructive() != null)
+        ArrayList<ItemInfo> mData = new ArrayList<ItemInfo>();
+        if (builder.getData() != null)
         {
-            mData.addAll(builder.getDestructive());
-        }
-        if (builder.getOthers() != null)
-        {
-            mData.addAll(builder.getOthers());
+            mData.addAll(builder.getData());
         }
         ListView alertButtonListView = view.findViewById(R.id.listview);
-        CustomActionsheetAdapter adapter = new CustomActionsheetAdapter(mData, builder.getDestructive());
-        alertButtonListView.setAdapter(adapter);
+        DialogListAdapter adapter = new DialogListAdapter(mData,CustomAlertDialogue.this);
         if (builder.getOnItemClickListener() != null)
         {
-            alertButtonListView.setOnItemClickListener(builder.getOnItemClickListener());
+            adapter.setOnItemClickListener(builder.getOnItemClickListener());
         }
+        alertButtonListView.setAdapter(adapter);
     }
 
     private void initInputView(final View view) {
@@ -566,13 +558,12 @@ public class CustomAlertDialogue extends DialogFragment {
         private OnCancelClicked onCancelClicked;
         private OnInputClicked onInputClicked;
 
-        private ArrayList<String> destructive;
-        private ArrayList<String> others;
+        private ArrayList<ItemInfo> data;
         private ArrayList<String> lineInputHint;
         private ArrayList<String> lineInputText;
         private ArrayList<String> boxInputHint;
         private ArrayList<String> boxInputText;
-        private AdapterView.OnItemClickListener onItemClickListener;
+        private DialogListAdapter.OnItemClickListener onItemClickListener;
 
         private boolean autoHide;
         private boolean cancelable = true;
@@ -595,8 +586,7 @@ public class CustomAlertDialogue extends DialogFragment {
             cancelColor = in.readInt();
             backgroundColor = in.readInt();
             timeToHide = in.readInt();
-            destructive = in.createStringArrayList();
-            others = in.createStringArrayList();
+            data = in.createTypedArrayList(ItemInfo.CREATOR);
             lineInputHint = in.createStringArrayList();
             lineInputText = in.createStringArrayList();
             boxInputHint = in.createStringArrayList();
@@ -847,11 +837,11 @@ public class CustomAlertDialogue extends DialogFragment {
          * @param onItemClickListener - pass a listener to be called when a selection item is clicked.
          * @return
          */
-        public Builder setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+        public Builder setOnItemClickListener(DialogListAdapter.OnItemClickListener onItemClickListener) {
             this.onItemClickListener = onItemClickListener;
             return this;
         }
-        public AdapterView.OnItemClickListener getOnItemClickListener() { return onItemClickListener; }
+        public DialogListAdapter.OnItemClickListener getOnItemClickListener() { return onItemClickListener; }
 
         /**
          * @param onInputClicked - pass a listener to be called when an input box is submitted.
@@ -866,24 +856,14 @@ public class CustomAlertDialogue extends DialogFragment {
         }
 
         /**
-         * @param destructive - converts a String ArrayList into destructive options in the selector.
+         * @param data - converts a String ArrayList into destructive options in the selector.
          * @return
          */
-        public Builder setDestructive(ArrayList<String> destructive) {
-            this.destructive = destructive;
+        public Builder setData(ArrayList<ItemInfo> data) {
+            this.data = data;
             return this;
         }
-        public ArrayList<String> getDestructive() { return destructive; }
-
-        /**
-         * @param others - converts a String ArrayList into neutral options in the selector.
-         * @return
-         */
-        public Builder setOthers(ArrayList<String> others) {
-            this.others = others;
-            return this;
-        }
-        public ArrayList<String> getOthers() { return others; }
+        public ArrayList<ItemInfo> getData() { return data; }
 
         /**
          * @param lineInputText - converts a String ArrayList into single line text input boxes.
@@ -1018,7 +998,9 @@ public class CustomAlertDialogue extends DialogFragment {
          * @return
          */
         public Dialog show() {
-            return CustomAlertDialogue.getInstance().show(((Activity) context), this);
+            final CustomAlertDialogue dialog = new CustomAlertDialogue();
+            dialog.builder = this;
+            return dialog.show((Activity) context,this);
         }
 
         public static final Creator<Builder> CREATOR = new Creator<Builder>() {
@@ -1052,8 +1034,7 @@ public class CustomAlertDialogue extends DialogFragment {
             parcel.writeInt(cancelColor);
             parcel.writeInt(backgroundColor);
             parcel.writeInt(timeToHide);
-            parcel.writeStringList(destructive);
-            parcel.writeStringList(others);
+            parcel.writeTypedList(data);
             parcel.writeStringList(lineInputHint);
             parcel.writeStringList(lineInputText);
             parcel.writeStringList(boxInputHint);
@@ -1093,83 +1074,6 @@ public class CustomAlertDialogue extends DialogFragment {
         INPUT
     }
 
-    public class CustomActionsheetAdapter extends BaseAdapter {
-
-        private List<String> mDatas;
-        private List<String> mDestructive;
-
-        public CustomActionsheetAdapter(List<String> datas, List<String> destructive){
-            this.mDatas = datas;
-            this.mDestructive = destructive;
-        }
-
-        @Override
-        public int getCount() {
-            return mDatas.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mDatas.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            String data = mDatas.get(position);
-            Holder holder = null;
-            View view = convertView;
-            if(view == null){
-                LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                view = inflater.inflate(R.layout.alert_button, null);
-                holder = createHolder(view);
-                view.setTag(holder);
-            }
-            else{
-                holder = (Holder) view.getTag();
-            }
-            holder.UpdateUI(parent.getContext(), data, position);
-            return view;
-        }
-        public Holder createHolder(View view){
-            return new Holder(view);
-        }
-
-        class Holder {
-
-            private View buttonDivider;
-            private TextView buttonText;
-
-            public Holder(View view){
-                buttonText = view.findViewById(R.id.alerttext);
-                buttonDivider = view.findViewById(R.id.button_divider);
-            }
-            public void UpdateUI(Context context, String data, int position){
-
-                buttonText.setText(data);
-                if (position == 0)
-                {
-                    buttonDivider.setVisibility(View.GONE);
-                }
-                else
-                {
-                    buttonDivider.setVisibility(View.VISIBLE);
-                }
-
-                if (mDestructive!= null && mDestructive.contains(data)){
-                    buttonText.setTextColor(ContextCompat.getColor(context, R.color.negative));
-                }
-                else{
-                    buttonText.setTextColor(ContextCompat.getColor(context, R.color.positive));
-                }
-            }
-        }
-    }
 
     public static class Units {
         /**
@@ -1181,4 +1085,5 @@ public class CustomAlertDialogue extends DialogFragment {
             return px;
         }
     }
+
 }

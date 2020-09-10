@@ -16,6 +16,7 @@
         android:layout_height="@dimen/button_height"
         android:gravity="center"
         android:textColor="@color/positive"
+        android:text=""
         android:textSize="@dimen/button_text_size"
         android:background="@drawable/bg_alertview_button"/>
 </LinearLayout>
